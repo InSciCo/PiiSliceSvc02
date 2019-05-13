@@ -7,218 +7,49 @@ Resources:
     Properties:
       Name: !Sub
         - ${ResourceName} From Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName}
-        - ResourceName: /users
+        - ResourceName: /shoptags
       StageName: !Ref StackeryEnvironmentAPIGatewayStageName
       DefinitionBody:
         swagger: '2.0'
         info: {}
         paths:
-          /users:
+          /shoptags:
             get:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${listUsers.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${listShopTags.Arn}/invocations
               responses: {}
             post:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${createUser.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${createShopTag.Arn}/invocations
               responses: {}
-          /users/{id}:
+          /shoptags/{id}:
             get:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getUser.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getShopTag.Arn}/invocations
               responses: {}
             put:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateUser.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${updateShopTag.Arn}/invocations
               responses: {}
+          /Shoptags/{id}:
             delete:
               x-amazon-apigateway-integration:
                 httpMethod: POST
                 type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteUser.Arn}/invocations
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${deleteShopTag.Arn}/invocations
               responses: {}
       EndpointConfiguration: REGIONAL
     Metadata:
-      StackeryName: /users
-  getUser:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-getUser
-      Description: !Sub
-        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
-        - ResourceName: getUser
-      CodeUri: src/getUser
-      Handler: StackeryFunction::StackeryFunction.Handler::handler
-      Runtime: dotnetcore2.1
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref usersTable
-        - Statement:
-            - Effect: Allow
-              Action: dynamodb:DescribeTable
-              Resource: !GetAtt usersTable.Arn
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref usersTable
-          TABLE_ARN: !GetAtt usersTable.Arn
-      Events:
-        apiGETusersid:
-          Type: Api
-          Properties:
-            Path: /users/{id}
-            Method: GET
-            RestApiId: !Ref api
-    Metadata:
-      StackeryName: getUser
-  updateUser:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-updateUser
-      Description: !Sub
-        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
-        - ResourceName: updateUser
-      CodeUri: src/updateUser
-      Handler: StackeryFunction::StackeryFunction.Handler::handler
-      Runtime: dotnetcore2.1
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref usersTable
-        - Statement:
-            - Effect: Allow
-              Action: dynamodb:DescribeTable
-              Resource: !GetAtt usersTable.Arn
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref usersTable
-          TABLE_ARN: !GetAtt usersTable.Arn
-      Events:
-        apiPUTusers:
-          Type: Api
-          Properties:
-            Path: /users/{id}
-            Method: PUT
-            RestApiId: !Ref api
-    Metadata:
-      StackeryName: updateUser
-  createUser:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-createUser
-      Description: !Sub
-        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
-        - ResourceName: createUser
-      CodeUri: src/createUser
-      Handler: StackeryFunction::StackeryFunction.Handler::handler
-      Runtime: dotnetcore2.1
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref usersTable
-        - Statement:
-            - Effect: Allow
-              Action: dynamodb:DescribeTable
-              Resource: !GetAtt usersTable.Arn
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref usersTable
-          TABLE_ARN: !GetAtt usersTable.Arn
-      Events:
-        apiPOSTusers:
-          Type: Api
-          Properties:
-            Path: /users
-            Method: POST
-            RestApiId: !Ref api
-    Metadata:
-      StackeryName: createUser
-  deleteUser:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-deleteUser
-      Description: !Sub
-        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
-        - ResourceName: deleteUser
-      CodeUri: src/deleteUser
-      Handler: StackeryFunction::StackeryFunction.Handler::handler
-      Runtime: dotnetcore2.1
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref usersTable
-        - Statement:
-            - Effect: Allow
-              Action: dynamodb:DescribeTable
-              Resource: !GetAtt usersTable.Arn
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref usersTable
-          TABLE_ARN: !GetAtt usersTable.Arn
-      Events:
-        apiDELETEusers:
-          Type: Api
-          Properties:
-            Path: /users/{id}
-            Method: DELETE
-            RestApiId: !Ref api
-    Metadata:
-      StackeryName: deleteUser
-  listUsers:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub ${AWS::StackName}-listUsers
-      Description: !Sub
-        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
-        - ResourceName: listUsers
-      CodeUri: src/listUsers
-      Handler: StackeryFunction::StackeryFunction.Handler::handler
-      Runtime: dotnetcore2.1
-      MemorySize: 3008
-      Timeout: 30
-      Tracing: Active
-      Policies:
-        - AWSXrayWriteOnlyAccess
-        - DynamoDBCrudPolicy:
-            TableName: !Ref usersTable
-        - Statement:
-            - Effect: Allow
-              Action: dynamodb:DescribeTable
-              Resource: !GetAtt usersTable.Arn
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref usersTable
-          TABLE_ARN: !GetAtt usersTable.Arn
-      Events:
-        apiGETusers:
-          Type: Api
-          Properties:
-            Path: /users
-            Method: GET
-            RestApiId: !Ref api
-    Metadata:
-      StackeryName: listUsers
-  usersTable:
+      StackeryName: /shoptags
+  shopTag:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -232,9 +63,179 @@ Resources:
         WriteCapacityUnits: 5
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
-      TableName: !Sub ${AWS::StackName}-usersTable
+      TableName: !Sub ${AWS::StackName}-shopTag
     Metadata:
-      StackeryName: Users
+      StackeryName: ShopTag
+  listShopTags:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-listShopTags
+      Description: !Sub
+        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
+        - ResourceName: listShopTags
+      CodeUri: src/listShopTags
+      Handler: StackeryFunction::StackeryFunction.Handler::handler
+      Runtime: dotnetcore2.1
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref shopTag
+        - Statement:
+            - Effect: Allow
+              Action: dynamodb:DescribeTable
+              Resource: !GetAtt shopTag.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref shopTag
+          TABLE_ARN: !GetAtt shopTag.Arn
+      Events:
+        apiGETshoptags:
+          Type: Api
+          Properties:
+            Path: /shoptags
+            Method: GET
+            RestApiId: !Ref api
+    Metadata:
+      StackeryName: listShopTags
+  deleteShopTag:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-deleteShopTag
+      Description: !Sub
+        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
+        - ResourceName: deleteShopTag
+      CodeUri: src/deleteShopTag
+      Handler: StackeryFunction::StackeryFunction.Handler::handler
+      Runtime: dotnetcore2.1
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref shopTag
+        - Statement:
+            - Effect: Allow
+              Action: dynamodb:DescribeTable
+              Resource: !GetAtt shopTag.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref shopTag
+          TABLE_ARN: !GetAtt shopTag.Arn
+      Events:
+        apiDELETEShoptagsid:
+          Type: Api
+          Properties:
+            Path: /Shoptags/{id}
+            Method: DELETE
+            RestApiId: !Ref api
+    Metadata:
+      StackeryName: deleteShopTag
+  createShopTag:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-createShopTag
+      Description: !Sub
+        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
+        - ResourceName: createShopTag
+      CodeUri: src/createShopTag
+      Handler: StackeryFunction::StackeryFunction.Handler::handler
+      Runtime: dotnetcore2.1
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref shopTag
+        - Statement:
+            - Effect: Allow
+              Action: dynamodb:DescribeTable
+              Resource: !GetAtt shopTag.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref shopTag
+          TABLE_ARN: !GetAtt shopTag.Arn
+      Events:
+        apiPOSTshoptags:
+          Type: Api
+          Properties:
+            Path: /shoptags
+            Method: POST
+            RestApiId: !Ref api
+    Metadata:
+      StackeryName: createShopTag
+  updateShopTag:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-updateShopTag
+      Description: !Sub
+        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
+        - ResourceName: updateShopTag
+      CodeUri: src/updateShopTag
+      Handler: StackeryFunction::StackeryFunction.Handler::handler
+      Runtime: dotnetcore2.1
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref shopTag
+        - Statement:
+            - Effect: Allow
+              Action: dynamodb:DescribeTable
+              Resource: !GetAtt shopTag.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref shopTag
+          TABLE_ARN: !GetAtt shopTag.Arn
+      Events:
+        apiPUTshoptagsid:
+          Type: Api
+          Properties:
+            Path: /shoptags/{id}
+            Method: PUT
+            RestApiId: !Ref api
+    Metadata:
+      StackeryName: updateShopTag
+  getShopTag:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-getShopTag
+      Description: !Sub
+        - Stackery Stack ${StackeryStackTagName} Environment ${StackeryEnvironmentTagName} Function ${ResourceName}
+        - ResourceName: getShopTag
+      CodeUri: src/getShopTag
+      Handler: StackeryFunction::StackeryFunction.Handler::handler
+      Runtime: dotnetcore2.1
+      MemorySize: 3008
+      Timeout: 30
+      Tracing: Active
+      Policies:
+        - AWSXrayWriteOnlyAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref shopTag
+        - Statement:
+            - Effect: Allow
+              Action: dynamodb:DescribeTable
+              Resource: !GetAtt shopTag.Arn
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref shopTag
+          TABLE_ARN: !GetAtt shopTag.Arn
+      Events:
+        apiGETshoptagsid:
+          Type: Api
+          Properties:
+            Path: /shoptags/{id}
+            Method: GET
+            RestApiId: !Ref api
+    Metadata:
+      StackeryName: getShopTag
 Parameters:
   StackeryStackTagName:
     Type: String
